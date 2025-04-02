@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+    postgres:
+        image: postgres:15
+        restart: always
+        env_file: .env
+        environment:
+            POSTGRES_USER: ${DB_POSTGRES_DB_USER}
+            POSTGRES_PASSWORD: ${DB_POSTGRES_DB_PASSWORD}
+            POSTGRES_DB: ${DB_POSTGRES_DB_DATABASE}
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+
+    n8n:
+        image: n8nio/n8n:latest
+        restart: always
+        ports:
+            - "5678:5678"
+        env_file: .env
+        environment:
+            - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE}
+            - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+            - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+            - DB_TYPE=${DB_TYPE}
+            - DB_POSTGRES_DB_HOST=${DB_POSTGRES_DB_HOST}
+            - DB_POSTGRES_DB_PORT=${DB_POSTGRES_DB_PORT}
+            - DB_POSTGRES_DB_DATABASE=${DB_POSTGRES_DB_DATABASE}
+            - DB_POSTGRES_DB_USER=${DB_POSTGRES_DB_USER}
+            - DB_POSTGRES_DB_PASSWORD=${DB_POSTGRES_DB_PASSWORD}
+            - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+        volumes:
+            - n8n_data:/home/node/.n8n
+        depends_on:
+            - postgres
+
+volumes:
+    n8n_data:
+        driver: local
+    postgres_data:
+        driver: local
+
